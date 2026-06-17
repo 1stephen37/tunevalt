@@ -1,0 +1,90 @@
+[
+  {
+    "id": "builtin-1",
+    "name": "SAU NÀY EM CƯỚI AI RỒI - THÁI HỌC _ KIỀU CHI COVER",
+    "file": "/music/SAU NÀY EM CƯỚI AI RỒI - THÁI HỌC _ KIỀU CHI COVER.mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-2",
+    "name": "Yêu Hoa Đã Có Chủ - Vương Triệu Anh",
+    "file": "/music/Yêu Hoa Đã Có Chủ - Vương Triệu Anh [LYRIC VIDEO].mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-3",
+    "name": "Yêu Hoa Có Chủ (#YHCC 64) - Tiến Đào",
+    "file": "/music/Yêu Hoa Có Chủ- Tiến Đào.mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-4",
+    "name": "[Vietsub] Hãy làm ánh sáng của chính mình, không cần phải quá sáng",
+    "file": "/music/[Vietsub] Hãy làm ánh sáng của chính mình, không cần phải quá sáng (做自己的光，不需要太亮) - Thiện Vũ (善宇).mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-5",
+    "name": "OLEW - CÔ ĐƠN NHƯ EM.mp3",
+    "file": "/music/OLEW - CÔ ĐƠN NHƯ EM.mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-6",
+    "name": "Olew x Minh Huy - Hãy gặp em trước khi em 25",
+    "file": "/music/Olew x Minh Huy - Hãy gặp em trước khi em 25.mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-7",
+    "name": "ANH THÔI NHÂN NHƯỢNG - AN CLOCK _ KIỀU CHI COVER",
+    "file": "/music/ANH THÔI NHÂN NHƯỢNG - AN CLOCK _ KIỀU CHI COVER.mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-8",
+    "name": "MẮT BÃO (OST Tiểu Đội 1978) - Tọi x Long Nón Lá x Phương Nghiêm (Official Acoustic Video)",
+    "file": "/music/MẮT BÃO (OST Tiểu Đội 1978) - Tọi x Long Nón Lá x Phương Nghiêm (Official Acoustic Video).mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-9",
+    "name": "Khi Thế Giới Quay Lưng - Tọi _ Official Lyrics Video",
+    "file": "/music/Khi Thế Giới Quay Lưng - Tọi _ Official Lyrics Video.mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-10",
+    "name": "Gặp Người Đúng Lúc [ ❣ Lời Việt ❣ ]",
+    "file": "/music/Gặp Người Đúng Lúc [ ❣ Lời Việt ❣ ].mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  },
+  {
+    "id": "builtin-11",
+    "name": "[Vietsub LIVE] Gặp người đúng lúc - Cao Tiến",
+    "file": "/music/[Vietsub LIVE] Gặp người đúng lúc - Cao Tiến.mp3",
+    "size": 0,
+    "type": "audio/mpeg",
+    "builtin": true
+  }
+]
