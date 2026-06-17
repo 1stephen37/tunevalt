@@ -23,10 +23,11 @@ export default function UploadButton({ onUpload }: { onUpload: () => void }) {
 
     for (const file of audioFiles) {
       try {
-        await saveMusicToCache(file);
+        const filePath = await saveMusicToCache(file); // /music/<tên>
         const track: MusicTrack = {
           id: Date.now().toString() + Math.random(),
           name: file.name,
+          file: filePath, // lưu path để sau reload không cần reconstruct
           size: file.size,
           type: file.type,
           addedAt: new Date(),

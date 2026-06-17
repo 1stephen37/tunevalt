@@ -40,7 +40,12 @@ export default function Home() {
     ]);
     const allRaw: MusicTrack[] = [
       ...builtin,
-      ...uploaded.map((t) => ({ ...t, builtin: false, file: `/music/${t.name}` })),
+      // Uploaded tracks: dùng track.file nếu đã lưu, fallback reconstruct
+      ...uploaded.map((t) => ({
+        ...t,
+        builtin: false,
+        file: t.file ?? `/music/${t.name}`,
+      })),
     ];
     const withCache: TrackWithCache[] = await Promise.all(
       allRaw.map(async (t) => ({

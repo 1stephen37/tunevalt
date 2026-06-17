@@ -1,43 +1,50 @@
-/**
- * Cache names phải khớp với next.config.js runtimeCaching.
- * SW dùng 'tunevalt-audio', app code cũng dùng cùng tên để read/write thống nhất.
- */
 const AUDIO_CACHE = 'tunevalt-audio';
 const META_CACHE = 'tunevalt-meta';
+
+/**
+ * Chuẩn hoá cache key: luôn dùng /music/<tên file gốc>, KHÔNG encode.
+ * Nhất quán giữa lúc lưu (saveMusicToCache) và lúc đọc (getPlayUrl / isInCache).
+ */
+function audioKey(fileName: string): string {
+  // Nếu đã là full path thì giữ nguyên, nếu chỉ là tên file thì thêm prefix
+  return fileName.startsWith('/') ? fileName : `/music/${fileName}`;
+}
 
 /** Lưu file upload từ <input> vào Cache API */
 export async function saveMusicToCache(file: File): Promise<string> {
   const cache = await caches.open(AUDIO_CACHE);
-  const urlPath = `/music/${encodeURIComponent(file.name)}`;
+  const key = audioKey(file.name); // /music/Tên bài.mp3  (không encode)
   await cache.put(
-    urlPath,
+    key,
     new Response(file, {
+      status: 200,
       headers: {
         'Content-Type': file.type,
         'Content-Length': String(file.size),
       },
     })
   );
-  return urlPath;
+  return key;
 }
 
 /** Lưu nhạc built-in (fetch từ URL tĩnh) vào Cache API để dùng offline */
 export async function saveBuiltinToCache(filePath: string): Promise<void> {
   const cache = await caches.open(AUDIO_CACHE);
-  const existing = await cache.match(filePath);
-  if (existing) return; // đã có rồi
+  const key = audioKey(filePath);
+  const existing = await cache.match(key);
+  if (existing) return;
 
-  const response = await fetch(filePath);
-  if (!response.ok) throw new Error(`Không tải được: ${filePath}`);
-  // Clone để đảm bảo response chưa bị consume
-  await cache.put(filePath, response.clone());
+  const response = await fetch(key);
+  if (!response.ok) throw new Error(`Không tải được: ${key}`);
+  await cache.put(key, response.clone());
 }
 
 /** Kiểm tra một file có trong cache chưa */
 export async function isInCache(filePath: string): Promise<boolean> {
   try {
     const cache = await caches.open(AUDIO_CACHE);
-    const match = await cache.match(filePath, { ignoreVary: true });
+    const key = audioKey(filePath);
+    const match = await cache.match(key, { ignoreVary: true });
     return !!match;
   } catch {
     return false;
@@ -48,9 +55,11 @@ export async function isInCache(filePath: string): Promise<boolean> {
 export async function getMusicFromCache(filePath: string): Promise<string | null> {
   try {
     const cache = await caches.open(AUDIO_CACHE);
-    const response = await cache.match(filePath, { ignoreVary: true });
+    const key = audioKey(filePath);
+    const response = await cache.match(key, { ignoreVary: true });
     if (!response) return null;
     const blob = await response.blob();
+    if (blob.size === 0) return null; // response rỗng — không phát được
     return URL.createObjectURL(blob);
   } catch {
     return null;
@@ -60,15 +69,14 @@ export async function getMusicFromCache(filePath: string): Promise<string | null
 /**
  * Lấy URL để phát:
  * - Có cache → trả blob URL (hoạt động offline)
- * - Chưa cache → trả path gốc (cần online, SW sẽ cache lại lần đầu phát)
+ * - Chưa cache → trả path gốc (cần online)
  */
 export async function getPlayUrl(filePath: string): Promise<string> {
   const cached = await getMusicFromCache(filePath);
   if (cached) return cached;
-  return filePath;
+  return audioKey(filePath);
 }
 
-/** Xoá toàn bộ audio cache (dùng trong settings nếu cần) */
 export async function clearAudioCache(): Promise<void> {
   await caches.delete(AUDIO_CACHE);
   await caches.delete(META_CACHE);
