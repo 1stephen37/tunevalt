@@ -16,6 +16,13 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "TuneValt — Nghe nhạc offline",
   description: "Ứng dụng nghe nhạc offline, lưu trữ ngay trên thiết bị của bạn.",
+  manifest: "/manifest.json",
+  themeColor: "#7c3aed",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "TuneValt",
+  },
 };
 
 export default function RootLayout({
