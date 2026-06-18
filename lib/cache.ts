@@ -1,32 +1,27 @@
-const AUDIO_CACHE = 'tunevalt-audio';
-const META_CACHE = 'tunevalt-meta';
-
 /**
- * Luôn dùng ABSOLUTE URL làm cache key.
- * cache.match() với relative URL sẽ được browser resolve thành absolute,
- * nhưng cache.put() với relative key lưu dưới dạng relative → mismatch khi lookup.
- * Dùng absolute URL tránh hoàn toàn vấn đề này.
+ * Cache name phải khớp với next.config.js runtimeCaching cacheName.
+ * App code đọc/ghi trực tiếp vào cache này, SW cũng serve từ đây.
  */
-function toAbsoluteUrl(filePath: string): string {
-  if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-    return filePath;
+const AUDIO_CACHE = 'tunevalt-audio';
+
+/** Chuẩn hoá về relative path: /music/<tên file> */
+function toRelativePath(filePath: string): string {
+  // Đã là relative path
+  if (filePath.startsWith('/music/')) return filePath;
+  // Absolute URL → lấy pathname
+  if (filePath.startsWith('http')) {
+    try { return new URL(filePath).pathname; } catch { /* ignore */ }
   }
-  const path = filePath.startsWith('/') ? filePath : `/music/${filePath}`;
-  // typeof window check để tránh lỗi SSR
-  if (typeof window !== 'undefined') {
-    return `${window.location.origin}${path}`;
-  }
-  return path;
+  // Chỉ là tên file
+  return `/music/${filePath}`;
 }
 
 /** Lưu file upload từ <input> vào Cache API */
 export async function saveMusicToCache(file: File): Promise<string> {
   const cache = await caches.open(AUDIO_CACHE);
-  const relativePath = `/music/${file.name}`;
-  const absoluteUrl = toAbsoluteUrl(relativePath);
-
+  const key = `/music/${file.name}`;
   await cache.put(
-    absoluteUrl,
+    new Request(key),
     new Response(file, {
       status: 200,
       headers: {
@@ -35,42 +30,40 @@ export async function saveMusicToCache(file: File): Promise<string> {
       },
     })
   );
-
-  // Trả về relative path để lưu vào DB (portable hơn absolute)
-  return relativePath;
+  return key;
 }
 
-/** Lưu nhạc built-in (fetch từ URL tĩnh) vào Cache API để dùng offline */
+/** Lưu nhạc built-in bằng cách fetch rồi đưa vào cache */
 export async function saveBuiltinToCache(filePath: string): Promise<void> {
   const cache = await caches.open(AUDIO_CACHE);
-  const absoluteUrl = toAbsoluteUrl(filePath);
+  const key = toRelativePath(filePath);
 
-  const existing = await cache.match(absoluteUrl);
+  const existing = await cache.match(new Request(key));
   if (existing) return;
 
-  const response = await fetch(absoluteUrl);
-  if (!response.ok) throw new Error(`Không tải được: ${absoluteUrl}`);
-  await cache.put(absoluteUrl, response.clone());
+  const response = await fetch(key);
+  if (!response.ok) throw new Error(`Không tải được: ${key}`);
+  await cache.put(new Request(key), response.clone());
 }
 
-/** Kiểm tra một file có trong cache chưa */
+/** Kiểm tra file có trong cache chưa */
 export async function isInCache(filePath: string): Promise<boolean> {
   try {
     const cache = await caches.open(AUDIO_CACHE);
-    const absoluteUrl = toAbsoluteUrl(filePath);
-    const match = await cache.match(absoluteUrl);
+    const key = toRelativePath(filePath);
+    const match = await cache.match(new Request(key));
     return !!match;
   } catch {
     return false;
   }
 }
 
-/** Lấy blob URL từ cache. Trả về null nếu chưa cache. */
+/** Lấy blob URL từ cache để phát offline */
 export async function getMusicFromCache(filePath: string): Promise<string | null> {
   try {
     const cache = await caches.open(AUDIO_CACHE);
-    const absoluteUrl = toAbsoluteUrl(filePath);
-    const response = await cache.match(absoluteUrl);
+    const key = toRelativePath(filePath);
+    const response = await cache.match(new Request(key));
     if (!response) return null;
     const blob = await response.blob();
     if (blob.size === 0) return null;
@@ -82,16 +75,15 @@ export async function getMusicFromCache(filePath: string): Promise<string | null
 
 /**
  * Lấy URL để phát:
- * - Có cache → trả blob URL (hoạt động offline)
- * - Chưa cache → trả absolute URL (cần online)
+ * - Có trong cache → blob URL (offline OK)
+ * - Không có → relative path (cần network, SW sẽ cache khi online)
  */
 export async function getPlayUrl(filePath: string): Promise<string> {
-  const cached = await getMusicFromCache(filePath);
-  if (cached) return cached;
-  return toAbsoluteUrl(filePath);
+  const blobUrl = await getMusicFromCache(filePath);
+  if (blobUrl) return blobUrl;
+  return toRelativePath(filePath);
 }
 
 export async function clearAudioCache(): Promise<void> {
   await caches.delete(AUDIO_CACHE);
-  await caches.delete(META_CACHE);
 }
